@@ -45,6 +45,7 @@ async function run() {
           service_id: 1,
           price: 1,
           title: 1,
+          img: 1,
         },
       };
       const result = await servicesCollection.findOne(query, options);
@@ -60,8 +61,30 @@ async function run() {
     });
 
     app.get("/bookings", async (req, res) => {
-      const cursor = bookingsCollection.find();
-      const result = await cursor.toArray();
+      let query = {};
+      if (req.query?.email) {
+        query = { email: req.query.email };
+      }
+      const result = await bookingsCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.delete("/bookings/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await bookingsCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    app.patch("/bookings/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          status: "confirm",
+        },
+      };
+      const result = await bookingsCollection.updateOne(query, updatedDoc);
       res.send(result);
     });
 
